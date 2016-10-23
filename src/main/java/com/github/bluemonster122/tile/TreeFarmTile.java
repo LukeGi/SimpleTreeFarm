@@ -47,7 +47,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
         for (BlockPos saplingPos : farmed) {
             IBlockState block = getWorld().getBlockState(pos.add(saplingPos));
             if (saplings.get(pos.add(saplingPos)) == null && block.getBlock().equals(Blocks.SAPLING)) {
-                BlockPlanks.EnumType type = BlockPlanks.EnumType.byMetadata(block.getBlock().getMetaFromState(block));
+                BlockPlanks.EnumType type = block.getValue(BlockSapling.TYPE);
                 boolean isMega = getWorld().rand.nextInt(10) == 2 && (type == BlockPlanks.EnumType.SPRUCE || type == BlockPlanks.EnumType.JUNGLE);
                 saplings.put(pos.add(saplingPos), new TreeSlot(type, isMega, TreeSlot.getMinHeight(type, isMega), TreeSlot.getChanceHeight(type, isMega, getWorld().rand), TreeSlot.getAddChanceHeight(type, isMega, getWorld().rand)));
                 block.getBlock().setTickRandomly(false);
@@ -96,30 +96,23 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
 
     private void findGrowers() {
         Iterator<BlockPos> farm = saplings.keySet().iterator();
-        List<Pair<BlockPos, TreeSlot>> cache = new ArrayList<>();
         while (farm.hasNext()) {
             BlockPos pos = farm.next();
             IBlockState state = worldObj.getBlockState(pos);
             Block block = state.getBlock();
             if (block instanceof BlockSapling) {
-                if (state.getValue(BlockSapling.TYPE).equals(saplings.get(pos).getTYPE())) {
+                if (!state.getValue(BlockSapling.TYPE).equals(saplings.get(pos).getTYPE())) {
                     farm.remove();
                     continue;
                 }
-                if (state.getValue(BlockSapling.STAGE) != 0) {
-                    IBlockState newState = block.getDefaultState();
-                    newState = newState.withProperty(BlockSapling.TYPE, state.getValue(BlockSapling.TYPE)).withProperty(BlockSapling.STAGE, 0);
-                    getWorld().notifyBlockUpdate(pos, state, newState, 3);
-                    TreeSlot sl = saplings.get(pos);
-                    farm.remove();
-                    sl.setHarvest(true);
-                    cache.add(new Pair<>(pos, sl));
+                else if (state.getValue(BlockSapling.STAGE) != 0) {
+                    saplings.get(pos).setHarvest(true);
                 }
             } else if (worldObj.isAirBlock(pos)) {
                 farm.remove();
             }
         }
-        cache.forEach(pair -> saplings.put(pair.getKey(), pair.getValue()));
+        ;
     }
 
     @Override

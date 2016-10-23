@@ -52,9 +52,6 @@ public class TreeSlot {
 
     private IBlockState getLogState() {
         switch (TYPE) {
-            case OAK:
-            default:
-                return Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, TYPE);
             case BIRCH:
                 return Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, TYPE);
             case SPRUCE:
@@ -65,14 +62,14 @@ public class TreeSlot {
                 return Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, TYPE);
             case ACACIA:
                 return Blocks.LOG2.getDefaultState().withProperty(BlockNewLog.VARIANT, TYPE);
+            case OAK:
+            default:
+                return Blocks.LOG.getDefaultState().withProperty(BlockOldLog.VARIANT, TYPE);
         }
     }
 
     private IBlockState getLeavesState() {
         switch (TYPE) {
-            case OAK:
-            default:
-                return Blocks.LEAVES.getDefaultState().withProperty(BlockOldLeaf.VARIANT, TYPE);
             case BIRCH:
                 return Blocks.LEAVES.getDefaultState().withProperty(BlockOldLeaf.VARIANT, TYPE);
             case SPRUCE:
@@ -83,6 +80,9 @@ public class TreeSlot {
                 return Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT, TYPE);
             case ACACIA:
                 return Blocks.LEAVES2.getDefaultState().withProperty(BlockNewLeaf.VARIANT, TYPE);
+            case OAK:
+            default:
+                return Blocks.LEAVES.getDefaultState().withProperty(BlockOldLeaf.VARIANT, TYPE);
         }
     }
 
