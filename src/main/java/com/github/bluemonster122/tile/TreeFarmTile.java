@@ -67,10 +67,11 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                 boolean canHarvest = true;
                 IItemHandler trialInv = new ItemStackHandler(inventory.getSlots());
                 int height = sapling.isMega() ? 15 : 7;
-                for (int i = 0; i < height; i++) {
+                for (int i = 1; i < height; i++) {
                     canHarvest &= getWorld().isAirBlock(current.up(i));
                 }
-                canHarvest &= energy > (drops.size() * Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK);
+                canHarvest &= energy >= (drops.size() * Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK);
+                System.out.println((drops.size() * Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK));
                 for (int i = 0; i < inventory.getSlots() && canHarvest; i++) {
                     ItemStack stackInSlot = inventory.getStackInSlot(i);
                     if (stackInSlot != null) {
@@ -78,13 +79,13 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                     }
                 }
                 for (int i = 0; i < drops.size() && canHarvest; i++) {
-                    ItemStack drop = drops.get(i);
+                    ItemStack drop = drops.get(i).copy();
                     canHarvest &= ItemHandlerHelper.insertItem(trialInv, drop, false) == null;
                 }
                 if (canHarvest) {
                     farm.remove();
                     drops.forEach(stack -> {
-                        ItemHandlerHelper.insertItem(inventory, stack, false);
+                        ItemHandlerHelper.insertItem(inventory, stack.copy(), false);
                         energy -= Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK;
                     });
                     getWorld().setBlockToAir(current);
@@ -107,7 +108,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                 }
                 if (state.getValue(BlockSapling.STAGE) != 0) {
                     IBlockState newState = block.getDefaultState();
-                    newState = newState.withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.byMetadata(state.getBlock().getMetaFromState(state))).withProperty(BlockSapling.STAGE, 0);
+                    newState = newState.withProperty(BlockSapling.TYPE, state.getValue(BlockSapling.TYPE)).withProperty(BlockSapling.STAGE, 0);
                     getWorld().notifyBlockUpdate(pos, state, newState, 3);
                     TreeSlot sl = saplings.get(pos);
                     farm.remove();
@@ -123,6 +124,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
 
     @Override
     public void update() {
+        energy = 1000000;
         findGrowers();
         if (!getWorld().isAirBlock(pos.up())) getWorld().destroyBlock(pos.up(), true);
         getWorld().notifyBlockUpdate(pos, getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
