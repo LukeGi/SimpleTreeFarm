@@ -3,7 +3,6 @@ package com.github.bluemonster122.tile;
 import cofh.api.energy.IEnergyReceiver;
 import com.github.bluemonster122.config.Configs;
 import com.github.bluemonster122.farm.TreeSlot;
-import com.github.bluemonster122.lib.Pair;
 import com.google.common.collect.ImmutableSet;
 import net.darkhax.tesla.api.ITeslaConsumer;
 import net.minecraft.block.Block;
@@ -112,14 +111,11 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                 farm.remove();
             }
         }
-        ;
     }
 
     @Override
     public void update() {
-        energy = 1000000;
         findGrowers();
-        if (!getWorld().isAirBlock(pos.up())) getWorld().destroyBlock(pos.up(), true);
         getWorld().notifyBlockUpdate(pos, getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
         if (getWorld().getTotalWorldTime() % 60 != 0) return;
         plantSaplings();
