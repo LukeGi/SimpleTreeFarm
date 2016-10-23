@@ -20,7 +20,7 @@ group = "com.github.bluemonster122"
 archivesBaseName = "SimpleTreeFarm"
 
 minecraft {
-    version = "1.10.2-12.18.1.2092"
+    version = "1.10.2-12.18.2.2107"
 
     runDir = "run"
     makeObfSourceJar = false

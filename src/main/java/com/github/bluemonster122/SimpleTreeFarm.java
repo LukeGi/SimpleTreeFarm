@@ -20,6 +20,7 @@ import net.minecraftforge.event.terraingen.SaplingGrowTreeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -27,11 +28,9 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
-import scala.collection.parallel.ParIterableLike;
 
 @Mod(modid = ModInfo.MOD_ID, name = ModInfo.MOD_NAME, version = ModInfo.VERSION, dependencies = ModInfo.DEPENDENCIES)
 public class SimpleTreeFarm {
-    public static Configs config;
 
     @Instance(ModInfo.MOD_ID)
     public static SimpleTreeFarm INSTANCE;
@@ -46,7 +45,6 @@ public class SimpleTreeFarm {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent evt) {
         MinecraftForge.TERRAIN_GEN_BUS.register(SimpleTreeFarm.TreeHandler.class);
-        config = Configs.initialize(evt.getSuggestedConfigurationFile());
         GameRegistry.registerTileEntity(TreeFarmTile.class, ModInfo.MOD_ID + ":" + Names.Blocks.TREE_FARM);
     }
 
@@ -54,6 +52,12 @@ public class SimpleTreeFarm {
     public void init(FMLInitializationEvent evt) {
         NetworkRegistry.INSTANCE.registerGuiHandler(SimpleTreeFarm.INSTANCE, new GuiHandler());
         GameRegistry.addShapedRecipe(new ItemStack(BlockHandler.TREE_FARM, 1), "SAS", "IOI", "SAS", 'S', new ItemStack(Blocks.SAPLING, 1, OreDictionary.WILDCARD_VALUE), 'A', new ItemStack(Items.IRON_AXE, 1), 'I', new ItemStack(Blocks.IRON_BLOCK, 1), 'O', new ItemStack(Blocks.OBSIDIAN, 1));
+    }
+
+    @Mod.EventHandler
+    public void onload(FMLLoadCompleteEvent evt){
+        System.out.println(Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK);
+        System.out.println(Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE);
     }
 
     @Mod.EventBusSubscriber(Side.CLIENT)

@@ -70,7 +70,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                 for (int i = 0; i < height; i++) {
                     canHarvest &= getWorld().isAirBlock(current.up(i));
                 }
-                canHarvest &= energy > (drops.size() * Configs.farmEnergyUseagePerBreak);
+                canHarvest &= energy > (drops.size() * Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK);
                 for (int i = 0; i < inventory.getSlots() && canHarvest; i++) {
                     ItemStack stackInSlot = inventory.getStackInSlot(i);
                     if (stackInSlot != null) {
@@ -85,7 +85,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                     farm.remove();
                     drops.forEach(stack -> {
                         ItemHandlerHelper.insertItem(inventory, stack, false);
-                        energy -= Configs.farmEnergyUseagePerBreak;
+                        energy -= Configs.ENERGY_CONSUMPTION_PER_BLOCK_BREAK;
                     });
                     getWorld().setBlockToAir(current);
                 }
@@ -134,8 +134,8 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     }
 
     private void plantSaplings() {
-        if (!getWorld().isRemote && energy >= Configs.farmEnergyUseagePerPlant) {
-            for (int i = 0; i < inventory.getSlots() && energy >= Configs.farmEnergyUseagePerPlant; i++) {
+        if (!getWorld().isRemote && energy >= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE) {
+            for (int i = 0; i < inventory.getSlots() && energy >= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE; i++) {
                 ItemStack element = inventory.getStackInSlot(i);
                 if (element == null) continue;
                 ItemStack elementCopy = ItemStack.copyItemStack(element);
@@ -144,11 +144,11 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                 if (elementCopy.isItemEqual(new ItemStack(Blocks.SAPLING, 1, OreDictionary.WILDCARD_VALUE))) {
                     BlockSapling sapling = (BlockSapling) Block.getBlockFromItem(element.getItem());
                     for (BlockPos saplingPos : farmed) {
-                        if (energy < Configs.farmEnergyUseagePerPlant) break;
+                        if (energy < Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE) break;
                         if (worldObj.isAirBlock(pos.add(saplingPos)) && isValidSoil(worldObj.getBlockState(pos.add(saplingPos).down())) && energy >= 50) {
                             IBlockState theState = sapling.getDefaultState().withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.byMetadata(element.getItemDamage()));
                             worldObj.setBlockState(pos.add(saplingPos), theState, 3);
-                            energy -= Configs.farmEnergyUseagePerPlant;
+                            energy -= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE;
                             inventory.extractItem(i, 1, false);
                             if (inventory.getStackInSlot(i) == null || inventory.getStackInSlot(i).stackSize <= 0) {
                                 inventory.setStackInSlot(i, null);
