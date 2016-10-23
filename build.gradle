@@ -15,7 +15,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-version = "1.0.11"
+version = "1.0.12"
 group = "com.github.bluemonster122"
 archivesBaseName = "SimpleTreeFarm"
 
