@@ -28,7 +28,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 public class TreeFarm extends Block implements ITileEntityProvider {
-    private static AxisAlignedBB AABB = new AxisAlignedBB(0, 0, 0, 1, 18 / 16f, 1);
 
     public TreeFarm() {
         super(Material.IRON);
@@ -49,19 +48,6 @@ public class TreeFarm extends Block implements ITileEntityProvider {
             farmTile.breakSaplings();
         }
         super.breakBlock(worldIn, pos, state);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
-        return AABB;
-    }
-
-    @SuppressWarnings("deprecation")
-    @Nullable
-    @Override
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
-        return AABB;
     }
 
     @Override
