@@ -23,6 +23,8 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -34,7 +36,7 @@ import java.util.*;
 @Optional.Interface(modid = "tesla", iface = "net.darkhax.tesla.api.ITeslaConsumer")
 public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorage, IEnergyReceiver, ITeslaConsumer {
     private Map<BlockPos, TreeSlot> saplings = new HashMap<>();
-    private ItemStackHandler inventory = new ItemStackHandler(64);
+    private ItemStackHandler inventory = new ItemStackHandler(72);
     private static Set<BlockPos> farmed = ImmutableSet.of(new BlockPos(-3, 0, -3), new BlockPos(-2, 0, -3), new BlockPos(-1, 0, -3), new BlockPos(0, 0, -3), new BlockPos(1, 0, -3), new BlockPos(2, 0, -3), new BlockPos(3, 0, -3), new BlockPos(-3, 0, -2), new BlockPos(-2, 0, -2), new BlockPos(-1, 0, -2), new BlockPos(0, 0, -2), new BlockPos(1, 0, -2), new BlockPos(2, 0, -2), new BlockPos(3, 0, -2), new BlockPos(-3, 0, -1), new BlockPos(-2, 0, -1), new BlockPos(-1, 0, -1), new BlockPos(0, 0, -1), new BlockPos(1, 0, -1), new BlockPos(2, 0, -1), new BlockPos(3, 0, -1), new BlockPos(-3, 0, 0), new BlockPos(-2, 0, 0), new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(2, 0, 0), new BlockPos(3, 0, 0), new BlockPos(-3, 0, 1), new BlockPos(-2, 0, 1), new BlockPos(-1, 0, 1), new BlockPos(0, 0, 1), new BlockPos(1, 0, 1), new BlockPos(2, 0, 1), new BlockPos(3, 0, 1), new BlockPos(-3, 0, 2), new BlockPos(-2, 0, 2), new BlockPos(-1, 0, 2), new BlockPos(0, 0, 2), new BlockPos(1, 0, 2), new BlockPos(2, 0, 2), new BlockPos(3, 0, 2), new BlockPos(-3, 0, 3), new BlockPos(-2, 0, 3), new BlockPos(-1, 0, 3), new BlockPos(0, 0, 3), new BlockPos(1, 0, 3), new BlockPos(2, 0, 3), new BlockPos(3, 0, 3));
     private int energy = 0;
 
@@ -79,7 +81,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                 }
                 for (int i = 0; i < drops.size() && canHarvest; i++) {
                     ItemStack drop = drops.get(i).copy();
-                    canHarvest &= ItemHandlerHelper.insertItem(trialInv, drop, false) == null;
+                    canHarvest = ItemHandlerHelper.insertItem(trialInv, drop, false) == null;
                 }
                 if (canHarvest) {
                     farm.remove();
@@ -166,6 +168,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
         this.readFromNBT(pkt.getNbtCompound());
     }

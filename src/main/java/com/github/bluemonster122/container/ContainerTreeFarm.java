@@ -18,24 +18,33 @@ public class ContainerTreeFarm extends Container {
     public ContainerTreeFarm(EntityPlayer player, TreeFarmTile tileEntity) {
         this.player = player;
         this.tileEntity = tileEntity;
+        int i;
+        int j;
+
+        // ME
 
         IItemHandler inventory = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN);
-        for (int j = 0; j < 8; j++) {
-            for (int i = 0; i < 8; i++) {
-                this.addSlotToContainer(new SlotItemHandler(inventory, j * 8 + i, i * 18 + 8, j * 18 + 18));
+        for (j = 0; j < 6; j++) {
+            for (i = 0; i < 6; i++) {
+                    this.addSlotToContainer(new SlotItemHandler(inventory, j * 6 + i, (i * 18 + 8), j * 18 + 18));
+            }
+        }
+        for (j = 0; j < 6; j++) {
+            for (i = 0; i < 6; i++) {
+                    this.addSlotToContainer(new SlotItemHandler(inventory, 35 + (j * 6 + i), (i * 18 + 120), j * 18 + 18));
             }
         }
 
-        int i;
+        // VANILLA
 
         for (i = 0; i < 3; ++i) {
-            for (int j = 0; j < 9; ++j) {
-                this.addSlotToContainer(new Slot(player.inventory, j + i * 9 + 9, 8 + j * 18, 174 + i * 18));
+            for (j = 0; j < 9; ++j) {
+                this.addSlotToContainer(new Slot(player.inventory, j + i * 9 + 9, 37 + j * 18, 132 + i * 18));
             }
         }
 
         for (i = 0; i < 9; ++i) {
-            this.addSlotToContainer(new Slot(player.inventory, i, 8 + i * 18, 232));
+            this.addSlotToContainer(new Slot(player.inventory, i, 37 + i * 18, 190));
         }
     }
 
