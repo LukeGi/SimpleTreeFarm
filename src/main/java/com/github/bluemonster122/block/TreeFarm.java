@@ -26,6 +26,7 @@ import net.minecraftforge.items.ItemStackHandler;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class TreeFarm extends Block implements ITileEntityProvider {
 
@@ -37,6 +38,13 @@ public class TreeFarm extends Block implements ITileEntityProvider {
         setHarvestLevel("pickaxe", 3);
         setHardness(7);
         setResistance(500);
+    }
+
+    @Override
+    public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+        tooltip.add("Each sapling in this farm must have respective amounts of clear space above it, otherwise it will mess with the virtual chopping program.");
+        tooltip.add("Farms a 7x7 area, this at the centre.");
+        tooltip.add("Range of this is not currently expandable");
     }
 
     @Override
