@@ -51,7 +51,7 @@ public class ContainerTreeFarm extends Container {
     @Override
     public ItemStack transferStackInSlot(EntityPlayer playerIn, int fromSlot) {
         ItemStack previous = null;
-        Slot slot = (Slot) this.inventorySlots.get(fromSlot);
+        Slot slot = this.inventorySlots.get(fromSlot);
 
         if (slot != null && slot.getHasStack()) {
             ItemStack current = slot.getStack();
@@ -59,16 +59,16 @@ public class ContainerTreeFarm extends Container {
 
             if (fromSlot < 9) {
                 // From TE Inventory to Player Inventory
-                if (!this.mergeItemStack(current, 64, 100, true))
+                if (!this.mergeItemStack(current, 72, 108, true))
                     return null;
             } else {
                 // From Player Inventory to TE Inventory
-                if (!this.mergeItemStack(current, 0, 63, false))
+                if (!this.mergeItemStack(current, 0, 72, false))
                     return null;
             }
 
             if (current.stackSize == 0)
-                slot.putStack((ItemStack) null);
+                slot.putStack(null);
             else
                 slot.onSlotChanged();
 

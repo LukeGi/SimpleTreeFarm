@@ -19,6 +19,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -31,6 +32,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
+import javax.annotation.Nonnull;
 import java.util.*;
 
 @Optional.Interface(modid = "tesla", iface = "net.darkhax.tesla.api.ITeslaConsumer")
@@ -104,9 +106,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
             if (block instanceof BlockSapling) {
                 if (!state.getValue(BlockSapling.TYPE).equals(saplings.get(pos).getTYPE())) {
                     farm.remove();
-                    continue;
-                }
-                else if (state.getValue(BlockSapling.STAGE) != 0) {
+                } else if (state.getValue(BlockSapling.STAGE) != 0) {
                     saplings.get(pos).setHarvest(true);
                 }
             } else if (worldObj.isAirBlock(pos)) {
@@ -138,7 +138,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
                     BlockSapling sapling = (BlockSapling) Block.getBlockFromItem(element.getItem());
                     for (BlockPos saplingPos : farmed) {
                         if (energy < Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE) break;
-                        if (worldObj.isAirBlock(pos.add(saplingPos)) && isValidSoil(worldObj.getBlockState(pos.add(saplingPos).down())) && energy >= 50) {
+                        if (worldObj.isAirBlock(pos.add(saplingPos)) && isValidSoil(saplingPos.down().add(getPos()), worldObj.getBlockState(saplingPos.down().add(saplingPos))) && energy >= 50) {
                             IBlockState theState = sapling.getDefaultState().withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.byMetadata(element.getItemDamage()));
                             worldObj.setBlockState(pos.add(saplingPos), theState, 3);
                             energy -= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE;
@@ -154,8 +154,8 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
         }
     }
 
-    private boolean isValidSoil(IBlockState blockState) {
-        return blockState.getBlock().equals(Blocks.GRASS) || blockState.getBlock().equals(Blocks.DIRT);
+    private boolean isValidSoil(BlockPos pos, IBlockState blockState) {
+        return blockState.getBlock().canSustainPlant(blockState, getWorld(), pos, EnumFacing.UP, (IPlantable) blockState.getBlock());
     }
 
     @Override
@@ -174,6 +174,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     }
 
     @Override
+    @Nonnull
     public NBTTagCompound getUpdateTag() {
         NBTTagCompound nbt = super.getUpdateTag();
         writeToNBT(nbt);
@@ -181,6 +182,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     }
 
     @Override
+    @Nonnull
     public NBTTagCompound writeToNBT(NBTTagCompound compound) {
         super.writeToNBT(compound);
         compound.setInteger("energy", energy);
@@ -213,15 +215,22 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
             slot.setHarvest(compound.getBoolean("sapGrow" + i));
             saplings.put(pos, slot);
         }
+        //TODO: remove this
+        ItemStackHandler temp = new ItemStackHandler(72);
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            temp.setStackInSlot(i, inventory.getStackInSlot(i));
+        }
+        inventory = temp;
     }
 
     @Override
-    public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+    public boolean hasCapability(@Nonnull Capability<?> capability, @Nonnull EnumFacing facing) {
         return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || capability == CapabilityEnergy.ENERGY || super.hasCapability(capability, facing);
     }
 
     @Override
-    public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
+    @Nonnull
+    public <T> T getCapability(@Nonnull Capability<T> capability, @Nonnull EnumFacing facing) {
         return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY ? CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(inventory) : capability == CapabilityEnergy.ENERGY ? CapabilityEnergy.ENERGY.cast(this) : super.getCapability(capability, facing);
     }
 
