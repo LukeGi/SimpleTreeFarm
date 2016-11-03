@@ -155,7 +155,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     }
 
     private boolean isValidSoil(BlockPos pos, IBlockState blockState) {
-        return blockState.getBlock().canSustainPlant(blockState, getWorld(), pos, EnumFacing.UP, (IPlantable) blockState.getBlock());
+        return blockState.getBlock() instanceof IPlantable && blockState.getBlock().canSustainPlant(blockState, getWorld(), pos, EnumFacing.UP, (IPlantable) blockState.getBlock());
     }
 
     @Override
