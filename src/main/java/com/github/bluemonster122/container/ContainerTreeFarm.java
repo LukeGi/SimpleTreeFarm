@@ -25,13 +25,8 @@ public class ContainerTreeFarm extends Container {
 
         IItemHandler inventory = tileEntity.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, EnumFacing.DOWN);
         for (j = 0; j < 6; j++) {
-            for (i = 0; i < 6; i++) {
-                    this.addSlotToContainer(new SlotItemHandler(inventory, j * 6 + i, (i * 18 + 8), j * 18 + 18));
-            }
-        }
-        for (j = 0; j < 6; j++) {
-            for (i = 0; i < 6; i++) {
-                    this.addSlotToContainer(new SlotItemHandler(inventory, 35 + (j * 6 + i), (i * 18 + 120), j * 18 + 18));
+            for (i = 0; i < 12; i++) {
+                this.addSlotToContainer(new SlotItemHandler(inventory, j * 12 + i, i * 18 + 10, j * 18 + 18));
             }
         }
 
@@ -57,7 +52,7 @@ public class ContainerTreeFarm extends Container {
             ItemStack current = slot.getStack();
             previous = current.copy();
 
-            if (fromSlot < 9) {
+            if (fromSlot < 72) {
                 // From TE Inventory to Player Inventory
                 if (!this.mergeItemStack(current, 72, 108, true))
                     return null;
@@ -81,7 +76,7 @@ public class ContainerTreeFarm extends Container {
 
     @Override
     public boolean canInteractWith(EntityPlayer playerIn) {
-        return playerIn.getPosition().distanceSq(tileEntity.getPos()) < 49;
+        return player.getPosition().distanceSq(tileEntity.getPos()) < 100;
     }
 
 

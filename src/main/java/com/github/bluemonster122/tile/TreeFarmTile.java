@@ -11,6 +11,7 @@ import net.minecraft.block.BlockSapling;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.InventoryHelper;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -19,7 +20,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.common.IPlantable;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
@@ -30,7 +30,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
-import net.minecraftforge.oredict.OreDictionary;
 
 import javax.annotation.Nonnull;
 import java.util.*;
@@ -40,6 +39,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     private Map<BlockPos, TreeSlot> saplings = new HashMap<>();
     private ItemStackHandler inventory = new ItemStackHandler(72);
     private static Set<BlockPos> farmed = ImmutableSet.of(new BlockPos(-3, 0, -3), new BlockPos(-2, 0, -3), new BlockPos(-1, 0, -3), new BlockPos(0, 0, -3), new BlockPos(1, 0, -3), new BlockPos(2, 0, -3), new BlockPos(3, 0, -3), new BlockPos(-3, 0, -2), new BlockPos(-2, 0, -2), new BlockPos(-1, 0, -2), new BlockPos(0, 0, -2), new BlockPos(1, 0, -2), new BlockPos(2, 0, -2), new BlockPos(3, 0, -2), new BlockPos(-3, 0, -1), new BlockPos(-2, 0, -1), new BlockPos(-1, 0, -1), new BlockPos(0, 0, -1), new BlockPos(1, 0, -1), new BlockPos(2, 0, -1), new BlockPos(3, 0, -1), new BlockPos(-3, 0, 0), new BlockPos(-2, 0, 0), new BlockPos(-1, 0, 0), new BlockPos(1, 0, 0), new BlockPos(2, 0, 0), new BlockPos(3, 0, 0), new BlockPos(-3, 0, 1), new BlockPos(-2, 0, 1), new BlockPos(-1, 0, 1), new BlockPos(0, 0, 1), new BlockPos(1, 0, 1), new BlockPos(2, 0, 1), new BlockPos(3, 0, 1), new BlockPos(-3, 0, 2), new BlockPos(-2, 0, 2), new BlockPos(-1, 0, 2), new BlockPos(0, 0, 2), new BlockPos(1, 0, 2), new BlockPos(2, 0, 2), new BlockPos(3, 0, 2), new BlockPos(-3, 0, 3), new BlockPos(-2, 0, 3), new BlockPos(-1, 0, 3), new BlockPos(0, 0, 3), new BlockPos(1, 0, 3), new BlockPos(2, 0, 3), new BlockPos(3, 0, 3));
+    public static Set<Block> ALLOWED_FARMING_BLOCKS = ImmutableSet.of(Blocks.DIRT, Blocks.FARMLAND, Blocks.GRASS, Blocks.GRASS_PATH);
     private int energy = 0;
 
     public TreeFarmTile() {
@@ -117,6 +117,7 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
 
     @Override
     public void update() {
+        energy = getMaxEnergyStored();
         findGrowers();
         getWorld().notifyBlockUpdate(pos, getWorld().getBlockState(getPos()), getWorld().getBlockState(getPos()), 3);
         if (getWorld().getTotalWorldTime() % 60 != 0) return;
@@ -127,25 +128,17 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
     }
 
     private void plantSaplings() {
-        if (!getWorld().isRemote && energy >= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE) {
-            for (int i = 0; i < inventory.getSlots() && energy >= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE; i++) {
-                ItemStack element = inventory.getStackInSlot(i);
-                if (element == null) continue;
-                ItemStack elementCopy = ItemStack.copyItemStack(element);
-                elementCopy.setItemDamage(OreDictionary.WILDCARD_VALUE);
-                elementCopy.stackSize = 1;
-                if (elementCopy.isItemEqual(new ItemStack(Blocks.SAPLING, 1, OreDictionary.WILDCARD_VALUE))) {
-                    BlockSapling sapling = (BlockSapling) Block.getBlockFromItem(element.getItem());
-                    for (BlockPos saplingPos : farmed) {
-                        if (energy < Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE) break;
-                        if (worldObj.isAirBlock(pos.add(saplingPos)) && isValidSoil(saplingPos.down().add(getPos()), worldObj.getBlockState(saplingPos.down().add(saplingPos))) && energy >= 50) {
-                            IBlockState theState = sapling.getDefaultState().withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.byMetadata(element.getItemDamage()));
-                            worldObj.setBlockState(pos.add(saplingPos), theState, 3);
-                            energy -= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE;
-                            inventory.extractItem(i, 1, false);
-                            if (inventory.getStackInSlot(i) == null || inventory.getStackInSlot(i).stackSize <= 0) {
-                                inventory.setStackInSlot(i, null);
-                                break;
+        if (!getWorld().isRemote && energy >= Configs.ENERGY_CONSUMPTION_PER_BLOCK_PLACE && inventory != null) {
+            for (BlockPos p : farmed) {
+                BlockPos pos = this.pos.add(p);
+                if (worldObj.isAirBlock(pos) && isValidBlock(pos.down())) {
+                    for (int i = 0; i < inventory.getSlots(); i++) {
+                        ItemStack stack = inventory.getStackInSlot(i);
+                        if (stack != null && stack.getItem() instanceof ItemBlock) {
+                            Block block = ((ItemBlock) stack.getItem()).block;
+                            if (block == Blocks.SAPLING) {
+                                worldObj.setBlockState(pos, block.getDefaultState().withProperty(BlockSapling.TYPE, BlockPlanks.EnumType.byMetadata(stack.getItemDamage())), 3);
+                                inventory.extractItem(i, 1, false);
                             }
                         }
                     }
@@ -154,8 +147,8 @@ public class TreeFarmTile extends TileEntity implements ITickable, IEnergyStorag
         }
     }
 
-    private boolean isValidSoil(BlockPos pos, IBlockState blockState) {
-        return blockState.getBlock() instanceof IPlantable && blockState.getBlock().canSustainPlant(blockState, getWorld(), pos, EnumFacing.UP, (IPlantable) blockState.getBlock());
+    private boolean isValidBlock(BlockPos down) {
+        return ALLOWED_FARMING_BLOCKS.contains(worldObj.getBlockState(down).getBlock());
     }
 
     @Override
