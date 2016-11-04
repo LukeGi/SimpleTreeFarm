@@ -1,16 +1,16 @@
 [
-{
-  "modid": "simpletreefarm",
-  "name": "Simple Tree Farm",
-  "description": "A mod that simply adds a tree farm",
-  "version": "${version}",
-  "mcversion": "${mcversion}",
-  "url": "",
-  "updateUrl": "",
-  "authorList": ["BlueMonster122"],
-  "credits": "Special thanks to Itorius for making a cool model, and logo for this mod",
-  "logoFile": "assets/simpletreefarm/textures/icon.png",
-  "screenshots": [],
-  "dependencies": []
-}
+  {
+    "modid": "SimpleTreeFarm",
+    "name": "SimpleTreeFarm",
+    "description": "A mod that adds a simple, server-friendly tree farm. ",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://minecraft.curseforge.com/projects/simpletreefarm",
+    "updateUrl": "https://minecraft.curseforge.com/projects/simpletreefarm/files",
+    "authorList": ["Blue_Monster122"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
 ]

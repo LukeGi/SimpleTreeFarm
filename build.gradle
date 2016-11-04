@@ -7,30 +7,31 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath "net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT"
     }
 }
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: "net.minecraftforge.gradle.forge"
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
-version = "1.0.17"
-group = "com.github.bluemonster122"
-archivesBaseName = "SimpleTreeFarm"
+version = modVersion
+group = modGroup
+archivesBaseName = modBaseName
 
 minecraft {
-    version = "1.10.2-12.18.2.2107"
+    version = project.forgeVersion
 
     runDir = "run"
     makeObfSourceJar = false
-    mappings = "snapshot_20160518"
+    mappings = project.mcpVersion
 
     replace '@VERSION@', project.version
     replace '@MC_VERSION@', version
 }
 
 repositories {
+    mavenCentral()
     maven {
         url = 'http://maven.epoxide.xyz'
     }
